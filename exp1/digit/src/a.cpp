@@ -2,10 +2,11 @@
 #include <fstream>
 #include <vector>
 #include <queue>
-#include <map>
+#include <unordered_map>
 #include <algorithm>
 #include <cstring>
 #include <ctime>
+#include <chrono>
 
 using namespace std;
 void A_h1(const int start[5][5], const int target[5][5]);
@@ -72,6 +73,8 @@ int main(int argc, char *argv[])
 
     if (tatic == 0)
         A_h1(start, target);
+    if (tatic == 1)
+        A_h2(start, target);
     if (tatic == 2)
         IDA_h1(start, target);
 
@@ -134,8 +137,7 @@ void A_h1(const int start[5][5], const int target[5][5])
     auto size = sizeof(int) * 5 * 5;
     fstream A_h1_f;
     A_h1_f.open("../output/output_A_h1.txt", ios::app | ios::in | ios::out);
-    clock_t begin, end;
-    begin = clock();
+    auto begin = std::chrono::high_resolution_clock::now();
 
     // 添加visit对帮助判断当前x，y是否在queue中
     int visit[5][5] = {0};
@@ -408,8 +410,9 @@ void A_h1(const int start[5][5], const int target[5][5])
             }
         }
     }
-    end = clock();
-    A_h1_f << new_node.op << '+' << (float)(end - begin) / 1000000 << "s" << endl;
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> fp_ms = end - begin;
+    A_h1_f << new_node.op << ',' << fp_ms.count() << "ms" << endl;
     A_h1_f.close();
 }
 
@@ -613,8 +616,7 @@ bool IDA_h1_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
 
 void IDA_h1(const int start[5][5], const int target[5][5])
 {
-    clock_t begin, end;
-    begin = clock();
+    auto begin = std::chrono::high_resolution_clock::now();
 
     //初始找到为0的点 统计初始点的h值
     int now_x, now_y, now_h = 0;
@@ -640,103 +642,45 @@ void IDA_h1(const int start[5][5], const int target[5][5])
     {
         IDA_h1_DFS(state, target, maxH++, now_x, now_y, now_h, 0, "");
     }
-    end = clock();
     fstream IDA_h1_f;
     IDA_h1_f.open("../output/output_IDA_h1.txt", ios::app | ios::in | ios::out);
-    IDA_h1_f << '+' << (float)(end - begin) / 1000000 << "s" << endl;
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> fp_ms = end - begin;
+    IDA_h1_f << ',' << fp_ms.count() << "ms" << endl;
     IDA_h1_f.close();
 }
 
-int cal(const int start[5][5], const int target[5][5], int (&h2)[5][5], int x, int y, int x_target, int y_target)
+int cal_h2(int state[5][5], unordered_map<int, int> map_target)
 {
-    if (x == x_target && y == y_target)
-    {
-        h2[y][x] = 0;
-        return 0;
-    }
-    else if (start[y][x] < 0)
-    {
-        h2[y][x] = INT_FAST16_MAX;
-        return INT_FAST16_MAX;
-    }
-    int up, down, left, right;
-    int next_x, next_y;
-    // up
-    if (y != 0 || (x == 2))
-    {
-        next_x = x;
-        if (y != 0)
-            next_y = y - 1;
-        else
-            next_y = 4;
-        if (h2[next_y][next_x] < 0)
-            up = cal(start, target, h2, next_x, next_y, x_target, y_target);
-        else
-            up = h2[next_y][next_x];
-    }
-    // down
-    if (y != 4 || (x == 2))
-    {
-        next_x = x;
-        if (y != 4)
-            next_y = y + 1;
-        else
-            next_y = 0;
-        if (h2[next_y][next_x] < 0)
-            down = cal(start, target, h2, next_x, next_y, x_target, y_target);
-        else
-            down = h2[next_y][next_x];
-    }
-    // left
-    if (x != 0 || (y == 2))
-    {
-        next_y = y;
-        if (x != 0)
-            next_x = x - 1;
-        else
-            next_x = 4;
-        if (h2[next_y][next_x] < 0)
-            left = cal(start, target, h2, next_x, next_y, x_target, y_target);
-        else
-            left = h2[next_y][next_x];
-    }
-    // right
-    if (x != 4 || (y == 2))
-    {
-        next_y = y;
-        if (x != 4)
-            next_x = x + 1;
-        else
-            next_x = 0;
-        if (h2[next_y][next_x] < 0)
-            right = cal(start, target, h2, next_x, next_y, x_target, y_target);
-        else
-            right = h2[next_y][next_x];
-    }
-    h2[x][y] = min(min(up, down), min(left, right));
-    return h2[x][y];
-}
-//采用欧式距离变体
-//考虑黑洞和隧道的距离 作为h2
-//计算所有点的h存入h2
-void cal_h2(const int start[5][5], const int target[5][5], int (&h2)[5][5])
-{
-    int x_init, y_init, x_target, y_target;
+    int rt;
+    unordered_map<int, int> map_state;
     for (int i = 0; i < 5; i++)
+    {
         for (int j = 0; j < 5; j++)
         {
-            if (start[i][j] == 0)
-            {
-                y_init = i;
-                x_init = j;
-            }
-            if (target[i][j] == 0)
-            {
-                y_target = i;
-                x_target = j;
-            }
+            if (state[i][j] >= 0)
+                map_state.insert(pair<int, int>(state[i][j], i * 5 + j));
         }
-    cal(start, target, h2, x_init, y_init, x_target, y_target);
+    }
+    int x, y, x_tar, y_tar;
+    int re = 0;
+    for (auto lt = map_state.begin(); lt != map_state.end(); lt++)
+    {
+        x = (*lt).second % 5;
+        y = ((*lt).second - x) / 5;
+        auto tar = map_target.find((*lt).first);
+        x_tar = (*tar).second % 5;
+        y_tar = ((*tar).second - x_tar) / 5;
+
+        int re1 = abs(x - x_tar) + abs(y - y_tar);
+        int re2 = abs(x - 2) + abs(y - 0) + 1 + abs(x_tar - 2) + abs(y_tar - 4);
+        int re3 = abs(x - 2) + abs(y - 4) + 1 + abs(x_tar - 2) + abs(y_tar - 0);
+        int re4 = abs(x - 0) + abs(y - 2) + 1 + abs(x_tar - 4) + abs(y_tar - 2);
+        int re5 = abs(x - 4) + abs(y - 2) + 1 + abs(x_tar - 0) + abs(y_tar - 2);
+        re += min(min(min(re1, re2), min(re3, re4)), re5);
+    }
+    return re;
+    //return re/2;
 }
 
 void A_h2(const int start[5][5], const int target[5][5])
@@ -744,11 +688,17 @@ void A_h2(const int start[5][5], const int target[5][5])
     auto size = sizeof(int) * 5 * 5;
     fstream A_h2_f;
     A_h2_f.open("../output/output_A_h2.txt", ios::app | ios::in | ios::out);
-    clock_t begin, end;
-    begin = clock();
+    auto begin = std::chrono::high_resolution_clock::now();
 
-    int h2[5][5];
-    cal_h2(start, target, h2);
+    unordered_map<int, int> map_target;
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            if (target[i][j] >= 0)
+                map_target.insert(pair<int, int>(target[i][j], i * 5 + j));
+        }
+    }
 
     //利用优先队列存储点的xy坐标,h,g
     priority_queue<Node, vector<Node>, cmp> node_queue;
@@ -774,8 +724,8 @@ void A_h2(const int start[5][5], const int target[5][5])
     init_node.x = now_x;
     init_node.y = now_y;
     init_node.g = 0;
-    init_node.h = h2[now_x][now_y];
     memcpy(init_node.state, start, size);
+    init_node.h = cal_h2(init_node.state, map_target);
     init_node.op = "";
     node_queue.push(init_node);
 
@@ -807,9 +757,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y - 1][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y - 1][now_x] != target[now_y - 1][now_x]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y - 1][now_x] != 0);
-                new_node.h = now_h - a + b;
+                new_node.h = cal_h2(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -835,9 +783,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[4][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[4][now_x] != target[4][now_x]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[4][now_x] != 0);
-                new_node.h = now_h - a + b;
+                new_node.h = cal_h2(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -863,9 +809,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y + 1][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y + 1][now_x] != target[now_y + 1][now_x]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y + 1][now_x] != 0);
-                new_node.h = now_h - a + b;
+                new_node.h = cal_h2(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -891,9 +835,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[0][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[0][now_x] != target[0][now_x]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[0][now_x] != 0);
-                new_node.h = now_h - a + b;
+                new_node.h = cal_h2(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -919,9 +861,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][now_x - 1] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y][now_x - 1] != target[now_y][now_x - 1]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y][now_x - 1] != 0);
-                new_node.h = now_h - a + b;
+                new_node.h = cal_h2(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -947,9 +887,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][4] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y][4] != target[now_y][4]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y][4] != 0);
-                new_node.h = now_h - a + b;
+                new_node.h = cal_h2(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -975,9 +913,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][now_x + 1] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y][now_x + 1] != target[now_y][now_x + 1]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y][now_x + 1] != 0);
-                new_node.h = now_h - a + b;
+                new_node.h = cal_h2(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -1003,9 +939,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][0] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y][0] != target[now_y][0]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y][0] != 0);
-                new_node.h = now_h - a + b;
+                new_node.h = cal_h2(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -1014,7 +948,244 @@ void A_h2(const int start[5][5], const int target[5][5])
             }
         }
     }
-    end = clock();
-    A_h2_f << new_node.op << '+' << (float)(end - begin) / 1000000 << "s" << endl;
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> fp_ms = end - begin;
+    A_h2_f << new_node.op << ',' << fp_ms.count() << "ms" << endl;
     A_h2_f.close();
 }
+
+/*
+bool IDA_h2_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y, int h, int g, string op)
+{
+    //剪枝
+
+    if (h == 0)
+    {
+        fstream IDA_h1_f;
+        IDA_h1_f.open("../output/output_IDA_h1.txt", ios::app | ios::in | ios::out);
+        IDA_h1_f << op;
+        IDA_h1_f.close();
+        return 1;
+    }
+    //深度优先搜索
+    int new_state[5][5];
+    auto size = sizeof(int) * 5 * 5;
+    //常规up
+    if (y != 0)
+    {
+        if (state[y - 1][x] >= 0)
+        //不是黑洞
+        {
+
+            //交换结点
+            memcpy(new_state, state, size);
+            new_state[y][x] = state[y - 1][x];
+            new_state[y - 1][x] = state[y][x];
+
+            //计算h
+            int a = (target[y][x] != 0) + (state[y - 1][x] != target[y - 1][x]);
+            int b = (target[y][x] != new_state[y][x]) + (target[y - 1][x] != 0);
+
+            if (h - a + b + g + 1 <= maxH)
+            {
+                if (IDA_h1_DFS(new_state, target, maxH, x, y - 1, h - a + b, g + 1, op + "U"))
+                    return 1;
+            }
+        }
+    }
+    //隧道UP
+    if (y == 0 && x == 2)
+    {
+        if (state[4][x] >= 0)
+        //不是黑洞
+        {
+            //交换结点
+            memcpy(new_state, state, size);
+            new_state[y][x] = state[4][x];
+            new_state[4][x] = state[y][x];
+
+            //计算h
+            int a = (target[y][x] != 0) + (state[4][x] != target[4][x]);
+            int b = (target[y][x] != new_state[y][x]) + (target[4][x] != 0);
+
+            if (h - a + b + g + 1 <= maxH)
+            {
+
+                if (IDA_h1_DFS(new_state, target, maxH, x, 4, h - a + b, g + 1, op + "U"))
+                    return 1;
+            }
+        }
+    }
+    //常规DOWN
+    if (y != 4)
+    {
+        if (state[y + 1][x] >= 0)
+        //不是黑洞
+        {
+            //交换结点
+            memcpy(new_state, state, size);
+            new_state[y][x] = state[y + 1][x];
+            new_state[y + 1][x] = state[y][x];
+
+            //计算h
+            int a = (target[y][x] != 0) + (state[y + 1][x] != target[y + 1][x]);
+            int b = (target[y][x] != new_state[y][x]) + (target[y + 1][x] != 0);
+
+            if (h - a + b + g + 1 <= maxH)
+            {
+                if (IDA_h1_DFS(new_state, target, maxH, x, y + 1, h - a + b, g + 1, op + "D"))
+                    return 1;
+            }
+        }
+    }
+    //隧道Down
+    if (y == 4 && x == 2)
+    {
+        if (state[0][x] >= 0)
+        //不是黑洞
+        {
+
+            //交换结点
+            memcpy(new_state, state, size);
+            new_state[y][x] = state[0][x];
+            new_state[0][x] = state[y][x];
+
+            //计算h
+            int a = (target[y][x] != 0) + (state[0][x] != target[0][x]);
+            int b = (target[y][x] != new_state[y][x]) + (target[0][x] != 0);
+
+            if (h - a + b + g + 1 <= maxH)
+            {
+                if (IDA_h1_DFS(new_state, target, maxH, x, 0, h - a + b, g + 1, op + "D"))
+                    return 1;
+            }
+        }
+    }
+    //常规LEFT
+    if (x != 0)
+    {
+        if (state[y][x - 1] >= 0)
+        //不是黑洞
+        {
+            //交换结点
+            memcpy(new_state, state, size);
+            new_state[y][x] = state[y][x - 1];
+            new_state[y][x - 1] = state[y][x];
+
+            //计算h
+            int a = (target[y][x] != 0) + (state[y][x - 1] != target[y][x - 1]);
+            int b = (target[y][x] != new_state[y][x]) + (target[y][x - 1] != 0);
+
+            if (h - a + b + g + 1 <= maxH)
+            {
+                if (IDA_h1_DFS(new_state, target, maxH, x - 1, y, h - a + b, g + 1, op + "L"))
+                    return 1;
+            }
+        }
+    }
+    //隧道LEFT
+    if (x == 0 && y == 2)
+    {
+        if (state[y][4] >= 0)
+        //不是黑洞
+        {
+            //交换结点
+            memcpy(new_state, state, size);
+            new_state[y][x] = state[y][4];
+            new_state[y][4] = state[y][x];
+
+            //计算h
+            int a = (target[y][x] != 0) + (state[y][4] != target[y][4]);
+            int b = (target[y][x] != new_state[y][x]) + (target[y][4] != 0);
+
+            if (h - a + b + g + 1 <= maxH)
+            {
+                if (IDA_h1_DFS(new_state, target, maxH, 4, y, h - a + b, g + 1, op + "L"))
+                    return 1;
+            }
+        }
+    }
+    //常规RIGHT
+    if (x != 4)
+    {
+        if (state[y][x + 1] >= 0)
+        //不是黑洞
+        {
+            //交换结点
+            memcpy(new_state, state, size);
+            new_state[y][x] = state[y][x + 1];
+            new_state[y][x + 1] = state[y][x];
+
+            //计算h
+            int a = (target[y][x] != 0) + (state[y][x + 1] != target[y][x + 1]);
+            int b = (target[y][x] != new_state[y][x]) + (target[y][x + 1] != 0);
+
+            if (h - a + b + g + 1 <= maxH)
+            {
+                if (IDA_h1_DFS(new_state, target, maxH, x + 1, y, h - a + b, g + 1, op + "R"))
+                    return 1;
+            }
+        }
+    }
+    //隧道RIGHT
+    if (x == 4 && y == 2)
+    {
+        if (state[y][0] >= 0)
+        //不是黑洞
+        {
+
+            //交换结点
+            memcpy(new_state, state, size);
+            new_state[y][x] = state[y][0];
+            new_state[y][0] = state[y][x];
+
+            //计算h
+            int a = (target[y][x] != 0) + (state[y][0] != target[y][0]);
+            int b = (target[y][x] != new_state[y][x]) + (target[y][0] != 0);
+
+            if (h - a + b + g + 1 <= maxH)
+            {
+                if (IDA_h1_DFS(new_state, target, maxH, 0, y, h - a + b, g + 1, op + "R"))
+                    return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+void IDA_h1(const int start[5][5], const int target[5][5])
+{
+    auto begin = std::chrono::high_resolution_clock::now();
+
+    //初始找到为0的点 统计初始点的h值
+    int now_x, now_y, now_h = 0;
+    int maxH = 0; //阈值
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            if (start[i][j] == 0)
+            {
+                now_x = j;
+                now_y = i;
+            }
+            if (start[i][j] != target[i][j])
+                now_h++;
+        }
+    }
+    maxH = now_h;
+    int state[5][5];
+    memcpy(state, start, sizeof(int) * 5 * 5);
+    //开始深度优先搜索
+    while (!IDA_h1_DFS(state, target, maxH, now_x, now_y, now_h, 0, ""))
+    {
+        IDA_h1_DFS(state, target, maxH++, now_x, now_y, now_h, 0, "");
+    }
+    fstream IDA_h1_f;
+    IDA_h1_f.open("../output/output_IDA_h1.txt", ios::app | ios::in | ios::out);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> fp_ms = end - begin;
+    IDA_h1_f << ',' << fp_ms.count() << "ms" << endl;
+    IDA_h1_f.close();
+}
+*/
