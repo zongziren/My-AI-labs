@@ -77,12 +77,14 @@ int main(int argc, char *argv[])
         A_h2(start, target);
     if (tatic == 2)
         IDA_h1(start, target);
+    if (tatic == 3)
+        IDA_h2(start, target);
 
     return 0;
 }
 
 /*
-void Judge_push(priority_queue<Node, vector<Node>, cmp> &node_queue, Node new_node, int (&visit)[5][5])
+void Judge_push(priority_queue<Node, vector<Node>, cmp> &node_queue, Node new_node)
 {
     if (visit[new_node.y][new_node.x] == 0)
     {
@@ -412,7 +414,7 @@ void A_h1(const int start[5][5], const int target[5][5])
     }
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = end - begin;
-    A_h1_f << new_node.op << ',' << fp_ms.count() << "ms" << endl;
+    A_h1_f << new_node.op << ',' << fp_ms.count() / 1000 << "s" << endl;
     A_h1_f.close();
 }
 
@@ -646,11 +648,46 @@ void IDA_h1(const int start[5][5], const int target[5][5])
     IDA_h1_f.open("../output/output_IDA_h1.txt", ios::app | ios::in | ios::out);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = end - begin;
-    IDA_h1_f << ',' << fp_ms.count() << "ms" << endl;
+    IDA_h1_f << ',' << fp_ms.count() / 1000 << "s" << endl;
     IDA_h1_f.close();
 }
 
 int cal_h2(int state[5][5], unordered_map<int, int> map_target)
+{
+    int rt;
+    unordered_map<int, int> map_state;
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            if (state[i][j] >= 0)
+                map_state.insert(pair<int, int>(state[i][j], i * 5 + j));
+        }
+    }
+    int x, y, x_tar, y_tar;
+    int cnt = 0;
+    int re = 0;
+    for (auto lt = map_state.begin(); lt != map_state.end(); lt++)
+    {
+        x = (*lt).second % 5;
+        y = ((*lt).second - x) / 5;
+        auto tar = map_target.find((*lt).first);
+        x_tar = (*tar).second % 5;
+        y_tar = ((*tar).second - x_tar) / 5;
+        if (x != x_tar || y != y_tar)
+            cnt++;
+
+        int re1 = abs(x - x_tar) + abs(y - y_tar);
+        int re2 = abs(x - 2) + abs(y - 0) + 1 + abs(x_tar - 2) + abs(y_tar - 4);
+        int re3 = abs(x - 2) + abs(y - 4) + 1 + abs(x_tar - 2) + abs(y_tar - 0);
+        int re4 = abs(x - 0) + abs(y - 2) + 1 + abs(x_tar - 4) + abs(y_tar - 2);
+        int re5 = abs(x - 4) + abs(y - 2) + 1 + abs(x_tar - 0) + abs(y_tar - 2);
+        re = max(re, min(min(min(re1, re2), min(re3, re4)), re5));
+    }
+    return re;
+}
+
+int cal_h20(int state[5][5], unordered_map<int, int> map_target)
 {
     int rt;
     unordered_map<int, int> map_state;
@@ -680,7 +717,6 @@ int cal_h2(int state[5][5], unordered_map<int, int> map_target)
         re += min(min(min(re1, re2), min(re3, re4)), re5);
     }
     return re;
-    //return re/2;
 }
 
 void A_h2(const int start[5][5], const int target[5][5])
@@ -725,7 +761,7 @@ void A_h2(const int start[5][5], const int target[5][5])
     init_node.y = now_y;
     init_node.g = 0;
     memcpy(init_node.state, start, size);
-    init_node.h = cal_h2(init_node.state, map_target);
+    init_node.h = cal_h20(init_node.state, map_target);
     init_node.op = "";
     node_queue.push(init_node);
 
@@ -757,7 +793,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y - 1][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                new_node.h = cal_h2(new_node.state, map_target);
+                new_node.h = cal_h20(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -783,7 +819,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[4][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                new_node.h = cal_h2(new_node.state, map_target);
+                new_node.h = cal_h20(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -809,7 +845,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y + 1][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                new_node.h = cal_h2(new_node.state, map_target);
+                new_node.h = cal_h20(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -835,7 +871,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[0][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                new_node.h = cal_h2(new_node.state, map_target);
+                new_node.h = cal_h20(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -861,7 +897,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][now_x - 1] = now_node.state[now_y][now_x];
 
                 //计算h
-                new_node.h = cal_h2(new_node.state, map_target);
+                new_node.h = cal_h20(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -887,7 +923,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][4] = now_node.state[now_y][now_x];
 
                 //计算h
-                new_node.h = cal_h2(new_node.state, map_target);
+                new_node.h = cal_h20(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -913,7 +949,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][now_x + 1] = now_node.state[now_y][now_x];
 
                 //计算h
-                new_node.h = cal_h2(new_node.state, map_target);
+                new_node.h = cal_h20(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -939,7 +975,7 @@ void A_h2(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][0] = now_node.state[now_y][now_x];
 
                 //计算h
-                new_node.h = cal_h2(new_node.state, map_target);
+                new_node.h = cal_h20(new_node.state, map_target);
                 if (new_node.h == 0)
                     break;
 
@@ -950,26 +986,25 @@ void A_h2(const int start[5][5], const int target[5][5])
     }
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = end - begin;
-    A_h2_f << new_node.op << ',' << fp_ms.count() << "ms" << endl;
+    A_h2_f << new_node.op << ',' << fp_ms.count() / 1000 << "s" << endl;
     A_h2_f.close();
 }
 
-/*
-bool IDA_h2_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y, int h, int g, string op)
+bool IDA_h2_DFS(int state[5][5], unordered_map<int, int> map_target, int maxH, int x, int y, int h, int g, string op)
 {
     //剪枝
-
     if (h == 0)
     {
-        fstream IDA_h1_f;
-        IDA_h1_f.open("../output/output_IDA_h1.txt", ios::app | ios::in | ios::out);
-        IDA_h1_f << op;
-        IDA_h1_f.close();
+        fstream IDA_h2_f;
+        IDA_h2_f.open("../output/output_IDA_h2.txt", ios::app | ios::in | ios::out);
+        IDA_h2_f << op;
+        IDA_h2_f.close();
         return 1;
     }
     //深度优先搜索
     int new_state[5][5];
     auto size = sizeof(int) * 5 * 5;
+    int new_h;
     //常规up
     if (y != 0)
     {
@@ -983,12 +1018,9 @@ bool IDA_h2_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y - 1][x] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y - 1][x] != target[y - 1][x]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y - 1][x] != 0);
-
-            if (h - a + b + g + 1 <= maxH)
+            if ((new_h = cal_h2(new_state, map_target)) + g <= maxH)
             {
-                if (IDA_h1_DFS(new_state, target, maxH, x, y - 1, h - a + b, g + 1, op + "U"))
+                if (IDA_h2_DFS(new_state, map_target, maxH, x, y - 1, new_h, g + 1, op + "U"))
                     return 1;
             }
         }
@@ -1005,13 +1037,9 @@ bool IDA_h2_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[4][x] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[4][x] != target[4][x]);
-            int b = (target[y][x] != new_state[y][x]) + (target[4][x] != 0);
-
-            if (h - a + b + g + 1 <= maxH)
+            if ((new_h = cal_h2(new_state, map_target)) + g <= maxH)
             {
-
-                if (IDA_h1_DFS(new_state, target, maxH, x, 4, h - a + b, g + 1, op + "U"))
+                if (IDA_h2_DFS(new_state, map_target, maxH, x, 4, new_h, g + 1, op + "U"))
                     return 1;
             }
         }
@@ -1028,12 +1056,9 @@ bool IDA_h2_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y + 1][x] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y + 1][x] != target[y + 1][x]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y + 1][x] != 0);
-
-            if (h - a + b + g + 1 <= maxH)
+            if ((new_h = cal_h2(new_state, map_target)) + g <= maxH)
             {
-                if (IDA_h1_DFS(new_state, target, maxH, x, y + 1, h - a + b, g + 1, op + "D"))
+                if (IDA_h2_DFS(new_state, map_target, maxH, x, y + 1, new_h, g + 1, op + "D"))
                     return 1;
             }
         }
@@ -1051,12 +1076,9 @@ bool IDA_h2_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[0][x] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[0][x] != target[0][x]);
-            int b = (target[y][x] != new_state[y][x]) + (target[0][x] != 0);
-
-            if (h - a + b + g + 1 <= maxH)
+            if ((new_h = cal_h2(new_state, map_target)) + g <= maxH)
             {
-                if (IDA_h1_DFS(new_state, target, maxH, x, 0, h - a + b, g + 1, op + "D"))
+                if (IDA_h2_DFS(new_state, map_target, maxH, x, 0, new_h, g + 1, op + "D"))
                     return 1;
             }
         }
@@ -1073,12 +1095,9 @@ bool IDA_h2_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y][x - 1] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y][x - 1] != target[y][x - 1]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y][x - 1] != 0);
-
-            if (h - a + b + g + 1 <= maxH)
+            if ((new_h = cal_h2(new_state, map_target)) + g <= maxH)
             {
-                if (IDA_h1_DFS(new_state, target, maxH, x - 1, y, h - a + b, g + 1, op + "L"))
+                if (IDA_h2_DFS(new_state, map_target, maxH, x - 1, y, new_h, g + 1, op + "L"))
                     return 1;
             }
         }
@@ -1095,12 +1114,9 @@ bool IDA_h2_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y][4] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y][4] != target[y][4]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y][4] != 0);
-
-            if (h - a + b + g + 1 <= maxH)
+            if ((new_h = cal_h2(new_state, map_target)) + g <= maxH)
             {
-                if (IDA_h1_DFS(new_state, target, maxH, 4, y, h - a + b, g + 1, op + "L"))
+                if (IDA_h2_DFS(new_state, map_target, maxH, 4, y, new_h, g + 1, op + "L"))
                     return 1;
             }
         }
@@ -1117,12 +1133,9 @@ bool IDA_h2_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y][x + 1] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y][x + 1] != target[y][x + 1]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y][x + 1] != 0);
-
-            if (h - a + b + g + 1 <= maxH)
+            if ((new_h = cal_h2(new_state, map_target)) + g <= maxH)
             {
-                if (IDA_h1_DFS(new_state, target, maxH, x + 1, y, h - a + b, g + 1, op + "R"))
+                if (IDA_h2_DFS(new_state, map_target, maxH, x + 1, y, new_h, g + 1, op + "R"))
                     return 1;
             }
         }
@@ -1140,12 +1153,9 @@ bool IDA_h2_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y][0] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y][0] != target[y][0]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y][0] != 0);
-
-            if (h - a + b + g + 1 <= maxH)
+            if ((new_h = cal_h2(new_state, map_target)) + g <= maxH)
             {
-                if (IDA_h1_DFS(new_state, target, maxH, 0, y, h - a + b, g + 1, op + "R"))
+                if (IDA_h2_DFS(new_state, map_target, maxH, 0, y, new_h, g + 1, op + "R"))
                     return 1;
             }
         }
@@ -1153,9 +1163,19 @@ bool IDA_h2_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
     return 0;
 }
 
-void IDA_h1(const int start[5][5], const int target[5][5])
+void IDA_h2(const int start[5][5], const int target[5][5])
 {
     auto begin = std::chrono::high_resolution_clock::now();
+
+    unordered_map<int, int> map_target;
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            if (target[i][j] >= 0)
+                map_target.insert(pair<int, int>(target[i][j], i * 5 + j));
+        }
+    }
 
     //初始找到为0的点 统计初始点的h值
     int now_x, now_y, now_h = 0;
@@ -1169,23 +1189,20 @@ void IDA_h1(const int start[5][5], const int target[5][5])
                 now_x = j;
                 now_y = i;
             }
-            if (start[i][j] != target[i][j])
-                now_h++;
         }
     }
-    maxH = now_h;
     int state[5][5];
     memcpy(state, start, sizeof(int) * 5 * 5);
+    now_h = maxH = cal_h2(state, map_target);
     //开始深度优先搜索
-    while (!IDA_h1_DFS(state, target, maxH, now_x, now_y, now_h, 0, ""))
+    while (!IDA_h2_DFS(state, map_target, maxH, now_x, now_y, now_h, 0, ""))
     {
-        IDA_h1_DFS(state, target, maxH++, now_x, now_y, now_h, 0, "");
+        IDA_h2_DFS(state, map_target, maxH++, now_x, now_y, now_h, 0, "");
     }
-    fstream IDA_h1_f;
-    IDA_h1_f.open("../output/output_IDA_h1.txt", ios::app | ios::in | ios::out);
+    fstream IDA_h2_f;
+    IDA_h2_f.open("../output/output_IDA_h2.txt", ios::app | ios::in | ios::out);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = end - begin;
-    IDA_h1_f << ',' << fp_ms.count() << "ms" << endl;
-    IDA_h1_f.close();
+    IDA_h2_f << ',' << fp_ms.count() / 1000 << "s" << endl;
+    IDA_h2_f.close();
 }
-*/
