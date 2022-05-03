@@ -351,7 +351,7 @@ void A_h1(const int start[5][5], const int target[5][5])
         }
     }
     end = clock();
-    A_h1_f << new_node.op << '+' << (end - begin) / 1000000 << "s" << endl;
+    A_h1_f << new_node.op << '+' << (float)(end - begin) / 1000000 << "s" << endl;
     A_h1_f.close();
 }
 
@@ -585,6 +585,6 @@ void IDA_h1(const int start[5][5], const int target[5][5])
     end = clock();
     fstream IDA_h1_f;
     IDA_h1_f.open("output_IDA_h1.txt", ios::app | ios::in | ios::out);
-    IDA_h1_f << '+' << (end - begin) / 1000000 << "s" << endl;
+    IDA_h1_f << '+' << (float)(end - begin) / 1000000 << "s" << endl;
     IDA_h1_f.close();
 }
