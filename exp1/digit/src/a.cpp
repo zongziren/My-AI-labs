@@ -80,7 +80,7 @@ void A_h1(const int start[5][5], const int target[5][5])
 {
     auto size = sizeof(int) * 5 * 5;
     fstream A_h1_f;
-    A_h1_f.open("output_A_h1.txt", ios::app | ios::in | ios::out);
+    A_h1_f.open("../output/output_A_h1.txt", ios::app | ios::in | ios::out);
     clock_t begin, end;
     begin = clock();
 
@@ -362,7 +362,7 @@ bool IDA_h1_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
     if (h == 0)
     {
         fstream IDA_h1_f;
-        IDA_h1_f.open("output_IDA_h1.txt", ios::app | ios::in | ios::out);
+        IDA_h1_f.open("../output/output_IDA_h1.txt", ios::app | ios::in | ios::out);
         IDA_h1_f << op;
         IDA_h1_f.close();
         return 1;
@@ -584,7 +584,7 @@ void IDA_h1(const int start[5][5], const int target[5][5])
     }
     end = clock();
     fstream IDA_h1_f;
-    IDA_h1_f.open("output_IDA_h1.txt", ios::app | ios::in | ios::out);
+    IDA_h1_f.open("../output/output_IDA_h1.txt", ios::app | ios::in | ios::out);
     IDA_h1_f << '+' << (float)(end - begin) / 1000000 << "s" << endl;
     IDA_h1_f.close();
 }
