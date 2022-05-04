@@ -162,7 +162,7 @@ void A_h1(const int start[5][5], const int target[5][5])
                 now_y = i;
                 now_g = 0;
             }
-            if (start[i][j] != target[i][j])
+            else if (start[i][j] != target[i][j])
                 now_h++;
         }
     }
@@ -205,8 +205,8 @@ void A_h1(const int start[5][5], const int target[5][5])
                 new_node.state[now_y - 1][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y - 1][now_x] != target[now_y - 1][now_x]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y - 1][now_x] != 0);
+                int a = now_node.state[now_y - 1][now_x] != target[now_y - 1][now_x];
+                int b = target[now_y][now_x] != new_node.state[now_y][now_x];
                 new_node.h = now_h - a + b;
                 if (new_node.h == 0)
                     break;
@@ -233,8 +233,8 @@ void A_h1(const int start[5][5], const int target[5][5])
                 new_node.state[4][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[4][now_x] != target[4][now_x]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[4][now_x] != 0);
+                int a = (now_node.state[4][now_x] != target[4][now_x]);
+                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]);
                 new_node.h = now_h - a + b;
                 if (new_node.h == 0)
                     break;
@@ -261,8 +261,8 @@ void A_h1(const int start[5][5], const int target[5][5])
                 new_node.state[now_y + 1][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y + 1][now_x] != target[now_y + 1][now_x]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y + 1][now_x] != 0);
+                int a = (now_node.state[now_y + 1][now_x] != target[now_y + 1][now_x]);
+                int b = target[now_y][now_x] != new_node.state[now_y][now_x];
                 new_node.h = now_h - a + b;
                 if (new_node.h == 0)
                     break;
@@ -289,8 +289,8 @@ void A_h1(const int start[5][5], const int target[5][5])
                 new_node.state[0][now_x] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[0][now_x] != target[0][now_x]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[0][now_x] != 0);
+                int a = (now_node.state[0][now_x] != target[0][now_x]);
+                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]);
                 new_node.h = now_h - a + b;
                 if (new_node.h == 0)
                     break;
@@ -317,8 +317,8 @@ void A_h1(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][now_x - 1] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y][now_x - 1] != target[now_y][now_x - 1]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y][now_x - 1] != 0);
+                int a = (now_node.state[now_y][now_x - 1] != target[now_y][now_x - 1]);
+                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]);
                 new_node.h = now_h - a + b;
                 if (new_node.h == 0)
                     break;
@@ -345,8 +345,8 @@ void A_h1(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][4] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y][4] != target[now_y][4]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y][4] != 0);
+                int a = (now_node.state[now_y][4] != target[now_y][4]);
+                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]);
                 new_node.h = now_h - a + b;
                 if (new_node.h == 0)
                     break;
@@ -373,8 +373,8 @@ void A_h1(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][now_x + 1] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y][now_x + 1] != target[now_y][now_x + 1]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y][now_x + 1] != 0);
+                int a = (now_node.state[now_y][now_x + 1] != target[now_y][now_x + 1]);
+                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]);
                 new_node.h = now_h - a + b;
                 if (new_node.h == 0)
                     break;
@@ -401,8 +401,8 @@ void A_h1(const int start[5][5], const int target[5][5])
                 new_node.state[now_y][0] = now_node.state[now_y][now_x];
 
                 //计算h
-                int a = (target[now_y][now_x] != 0) + (now_node.state[now_y][0] != target[now_y][0]);
-                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]) + (target[now_y][0] != 0);
+                int a = (now_node.state[now_y][0] != target[now_y][0]);
+                int b = (target[now_y][now_x] != new_node.state[now_y][now_x]);
                 new_node.h = now_h - a + b;
                 if (new_node.h == 0)
                     break;
@@ -446,8 +446,8 @@ bool IDA_h1_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y - 1][x] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y - 1][x] != target[y - 1][x]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y - 1][x] != 0);
+            int a = (state[y - 1][x] != target[y - 1][x]);
+            int b = (target[y][x] != new_state[y][x]);
 
             if (h - a + b + g + 1 <= maxH)
             {
@@ -468,8 +468,8 @@ bool IDA_h1_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[4][x] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[4][x] != target[4][x]);
-            int b = (target[y][x] != new_state[y][x]) + (target[4][x] != 0);
+            int a = (state[4][x] != target[4][x]);
+            int b = (target[y][x] != new_state[y][x]);
 
             if (h - a + b + g + 1 <= maxH)
             {
@@ -491,8 +491,8 @@ bool IDA_h1_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y + 1][x] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y + 1][x] != target[y + 1][x]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y + 1][x] != 0);
+            int a = (state[y + 1][x] != target[y + 1][x]);
+            int b = (target[y][x] != new_state[y][x]);
 
             if (h - a + b + g + 1 <= maxH)
             {
@@ -514,8 +514,8 @@ bool IDA_h1_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[0][x] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[0][x] != target[0][x]);
-            int b = (target[y][x] != new_state[y][x]) + (target[0][x] != 0);
+            int a = (state[0][x] != target[0][x]);
+            int b = (target[y][x] != new_state[y][x]);
 
             if (h - a + b + g + 1 <= maxH)
             {
@@ -536,8 +536,8 @@ bool IDA_h1_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y][x - 1] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y][x - 1] != target[y][x - 1]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y][x - 1] != 0);
+            int a = (state[y][x - 1] != target[y][x - 1]);
+            int b = (target[y][x] != new_state[y][x]);
 
             if (h - a + b + g + 1 <= maxH)
             {
@@ -558,8 +558,8 @@ bool IDA_h1_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y][4] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y][4] != target[y][4]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y][4] != 0);
+            int a = (state[y][4] != target[y][4]);
+            int b = (target[y][x] != new_state[y][x]);
 
             if (h - a + b + g + 1 <= maxH)
             {
@@ -580,8 +580,8 @@ bool IDA_h1_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y][x + 1] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y][x + 1] != target[y][x + 1]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y][x + 1] != 0);
+            int a = (state[y][x + 1] != target[y][x + 1]);
+            int b = (target[y][x] != new_state[y][x]);
 
             if (h - a + b + g + 1 <= maxH)
             {
@@ -603,8 +603,8 @@ bool IDA_h1_DFS(int state[5][5], const int target[5][5], int maxH, int x, int y,
             new_state[y][0] = state[y][x];
 
             //计算h
-            int a = (target[y][x] != 0) + (state[y][0] != target[y][0]);
-            int b = (target[y][x] != new_state[y][x]) + (target[y][0] != 0);
+            int a = (state[y][0] != target[y][0]);
+            int b = (target[y][x] != new_state[y][x]);
 
             if (h - a + b + g + 1 <= maxH)
             {
@@ -632,7 +632,7 @@ void IDA_h1(const int start[5][5], const int target[5][5])
                 now_x = j;
                 now_y = i;
             }
-            if (start[i][j] != target[i][j])
+            else if (start[i][j] != target[i][j])
                 now_h++;
         }
     }
@@ -654,6 +654,32 @@ void IDA_h1(const int start[5][5], const int target[5][5])
 
 int cal_h2(int state[5][5], unordered_map<int, int> map_target)
 {
+    /*
+    int hamiton = 0;
+    int x, y;
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            if (state[i][j] == 0)
+            {
+                y = i;
+                x = j;
+            }
+        }
+    }
+    auto tar = map_target.find(0);
+    auto x_tar = (*tar).second % 5;
+    auto y_tar = ((*tar).second - x_tar) / 5;
+    int re1 = abs(x - x_tar) + abs(y - y_tar);
+    int re2 = abs(x - 2) + abs(y - 0) + 1 + abs(x_tar - 2) + abs(y_tar - 4);
+    int re3 = abs(x - 2) + abs(y - 4) + 1 + abs(x_tar - 2) + abs(y_tar - 0);
+    int re4 = abs(x - 0) + abs(y - 2) + 1 + abs(x_tar - 4) + abs(y_tar - 2);
+    int re5 = abs(x - 4) + abs(y - 2) + 1 + abs(x_tar - 0) + abs(y_tar - 2);
+    hamiton = min(min(min(re1, re2), min(re3, re4)), re5);
+    return hamiton;
+    */
+
     int rt;
     unordered_map<int, int> map_state;
     for (int i = 0; i < 5; i++)
@@ -667,14 +693,18 @@ int cal_h2(int state[5][5], unordered_map<int, int> map_target)
     int x, y, x_tar, y_tar;
     int cnt = 0;
     int re = 0;
+    int hamiton = 0;
+
     for (auto lt = map_state.begin(); lt != map_state.end(); lt++)
     {
+
         x = (*lt).second % 5;
         y = ((*lt).second - x) / 5;
         auto tar = map_target.find((*lt).first);
         x_tar = (*tar).second % 5;
         y_tar = ((*tar).second - x_tar) / 5;
-        if (x != x_tar || y != y_tar)
+
+        if ((x != x_tar || y != y_tar) && (*lt).first != 0)
             cnt++;
 
         int re1 = abs(x - x_tar) + abs(y - y_tar);
@@ -682,9 +712,11 @@ int cal_h2(int state[5][5], unordered_map<int, int> map_target)
         int re3 = abs(x - 2) + abs(y - 4) + 1 + abs(x_tar - 2) + abs(y_tar - 0);
         int re4 = abs(x - 0) + abs(y - 2) + 1 + abs(x_tar - 4) + abs(y_tar - 2);
         int re5 = abs(x - 4) + abs(y - 2) + 1 + abs(x_tar - 0) + abs(y_tar - 2);
-        re = max(re, min(min(min(re1, re2), min(re3, re4)), re5));
+        re = re + min(min(min(re1, re2), min(re3, re4)), re5);
+        if ((*lt).first == 0)
+            hamiton = min(min(min(re1, re2), min(re3, re4)), re5);
     }
-    return re;
+    return cnt;
 }
 
 int cal_h20(int state[5][5], unordered_map<int, int> map_target)
@@ -990,10 +1022,27 @@ void A_h2(const int start[5][5], const int target[5][5])
     A_h2_f.close();
 }
 
+int compare(int state[5][5], unordered_map<int, int> map_target)
+{
+    for (int i = 0; i < 5; i++)
+        for (int j = 0; j < 5; j++)
+        {
+            if (state[i][j] >= 0)
+            {
+                auto lt = map_target.find(state[i][j]);
+                if ((*lt).second != 5 * i + j)
+                {
+                    return 0;
+                }
+            }
+        }
+    return 1;
+}
+
 bool IDA_h2_DFS(int state[5][5], unordered_map<int, int> map_target, int maxH, int x, int y, int h, int g, string op)
 {
     //剪枝
-    if (h == 0)
+    if (compare(state, map_target) == 1)
     {
         fstream IDA_h2_f;
         IDA_h2_f.open("../output/output_IDA_h2.txt", ios::app | ios::in | ios::out);
